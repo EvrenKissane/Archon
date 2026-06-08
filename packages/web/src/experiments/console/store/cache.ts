@@ -177,6 +177,7 @@ export function useEntity<T>(key: string, loader: () => Promise<T>): EntityView<
         if (s.size === 0) {
           listeners.delete(key);
           loaders.delete(key);
+          versions.delete(key);
         }
       };
     },

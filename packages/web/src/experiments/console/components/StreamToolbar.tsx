@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
+import { ALL_NODES_ID } from './RunStream';
 
 export type DetailView = 'log' | 'graph' | 'artifacts';
 
@@ -169,7 +170,7 @@ export function StreamToolbar({
                   className={SELECT_CLASS}
                   aria-label="Filter stream by node"
                 >
-                  <option value="all">All nodes</option>
+                  <option value={ALL_NODES_ID}>All nodes</option>
                   {nodeOptions.map(o => (
                     <option key={o.id} value={o.id}>
                       {o.name}

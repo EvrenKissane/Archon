@@ -10,7 +10,7 @@ import {
 import { useNavigate, useParams } from 'react-router';
 import { useKeymap, type Binding } from '../lib/keymap';
 import { RunDetailHeader } from '../components/RunDetailHeader';
-import { RunStream } from '../components/RunStream';
+import { RunStream, ALL_NODES_ID } from '../components/RunStream';
 import { RunActionBar } from '../components/RunActionBar';
 import { StreamToolbar, type DetailView } from '../components/StreamToolbar';
 import { ApprovalContext } from '../components/ApprovalContext';
@@ -93,9 +93,9 @@ function writeView(v: DetailView): void {
 
 function readNodeFilter(): string {
   try {
-    return localStorage.getItem(TOGGLE_KEYS.node) ?? 'all';
+    return localStorage.getItem(TOGGLE_KEYS.node) ?? ALL_NODES_ID;
   } catch {
-    return 'all';
+    return ALL_NODES_ID;
   }
 }
 
@@ -207,8 +207,8 @@ export function RunDetailPage(): ReactElement {
   // "Waiting for first event…" frame.
   useLayoutEffect(() => {
     if (detail === undefined || detail === null) return;
-    if (selectedNodeId !== 'all' && !nodeOptions.some(o => o.id === selectedNodeId)) {
-      setSelectedNodeId('all');
+    if (selectedNodeId !== ALL_NODES_ID && !nodeOptions.some(o => o.id === selectedNodeId)) {
+      setSelectedNodeId(ALL_NODES_ID);
     }
   }, [detail, nodeOptions, selectedNodeId]);
 

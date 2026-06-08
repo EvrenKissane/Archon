@@ -13,6 +13,7 @@ import { useEntity, invalidate } from '../store/cache';
 import { K } from '../store/keys';
 import * as skill from '../skills';
 import type { Workflow } from '../primitives/workflow';
+import { formatBytes } from '../primitives/file';
 
 interface DraftRunCardProps {
   projectId: string;
@@ -28,12 +29,6 @@ const MAX_FILE_BYTES = 10 * 1024 * 1024;
 /** Client-side accept hint; the server is the security boundary. */
 const ACCEPT_HINT =
   'text/*,image/*,application/pdf,.md,.json,.yaml,.yml,.toml,.ts,.tsx,.js,.jsx,.py,.go,.rs,.sh,.sql,.html,.css';
-
-function formatBytes(n: number): string {
-  if (n < 1024) return `${n.toString()} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  return `${(n / 1024 / 1024).toFixed(1)} MB`;
-}
 
 function readLastWorkflow(): string {
   try {

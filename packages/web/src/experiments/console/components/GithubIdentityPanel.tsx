@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState, type ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
 import * as skill from '../skills';
 import { useEntity, invalidate } from '../store/cache';
 import { K } from '../store/keys';
 import { HttpError } from '../lib/http';
+import { useCancellationRef } from '../hooks/useCancellationRef';
 import { SettingsSection } from './SettingsSection';
 
 type Phase = 'idle' | 'pending' | 'error';
@@ -27,13 +28,7 @@ export function GithubIdentityPanel(): ReactElement | null {
   const [message, setMessage] = useState<string | null>(null);
   const [disconnecting, setDisconnecting] = useState(false);
 
-  const cancelledRef = useRef(false);
-  useEffect(() => {
-    cancelledRef.current = false;
-    return (): void => {
-      cancelledRef.current = true;
-    };
-  }, []);
+  const cancelledRef = useCancellationRef();
 
   const connect = async (): Promise<void> => {
     setPhase('pending');

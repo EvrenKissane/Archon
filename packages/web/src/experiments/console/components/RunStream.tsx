@@ -16,6 +16,9 @@ import type {
 } from '../primitives/event';
 import { StreamCard } from './StreamCard';
 
+/** Sentinel value for `selectedNodeId` meaning "show all nodes". */
+export const ALL_NODES_ID = 'all';
+
 interface RunStreamProps {
   messages: Message[];
   events: RunEvent[];
@@ -141,6 +144,7 @@ export function RunStream({
   // Single source for the folded nodes — consumed by both the timeline (one
   // divider per node) and the node-filter window so they can't drift.
   const nodeRuns = useMemo(() => foldNodeRuns(events), [events]);
+  const pairedTools = useMemo(() => pairToolEvents(events), [events]);
 
   const timeline = useMemo<TimelineEntry[]>(() => {
     const entries: TimelineEntry[] = [];
@@ -216,7 +220,7 @@ export function RunStream({
 
     // If no inline tool calls came from messages, surface workflow tool events.
     if (inlineToolCount === 0) {
-      for (const t of pairToolEvents(events)) {
+      for (const t of pairedTools) {
         entries.push({
           kind: 'tool',
           key: `wt:${t.id}`,
@@ -251,7 +255,7 @@ export function RunStream({
     }
     entries.sort((a, b) => a.at - b.at);
     return entries;
-  }, [messages, events, nodeRuns, showSystem]);
+  }, [messages, pairedTools, nodeRuns, showSystem]);
 
   // The selected node's execution slice `[startedAt, nextNode.startedAt)`. Used as
   // a positional fallback so node-blind entries (message-inline tools, prose,
@@ -259,7 +263,7 @@ export function RunStream({
   // when filtering — without it, selecting a node on a message-inline-tool run
   // (e.g. Claude) would blank the stream.
   const nodeWindow = useMemo<{ start: number; end: number } | null>(() => {
-    if (selectedNodeId === 'all') return null;
+    if (selectedNodeId === ALL_NODES_ID) return null;
     const idx = nodeRuns.findIndex(r => r.nodeId === selectedNodeId);
     if (idx === -1) return null;
     const start = new Date(nodeRuns[idx].startedAt).getTime();
@@ -275,7 +279,7 @@ export function RunStream({
     // event) tools match by identity; every node-blind entry (message-inline
     // tools, prose, artifacts, system rows) falls back to the node's time window
     // so a node's whole slice of the timeline stays visible regardless of provider.
-    if (selectedNodeId !== 'all') {
+    if (selectedNodeId !== ALL_NODES_ID) {
       if (e.kind === 'node') return e.node.nodeId === selectedNodeId;
       if (e.kind === 'tool' && e.nodeId !== null) return e.nodeId === selectedNodeId;
       return nodeWindow !== null && e.at >= nodeWindow.start && e.at < nodeWindow.end;
